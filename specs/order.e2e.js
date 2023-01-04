@@ -10,39 +10,55 @@ import {
     endDate
 } from './fixtures.js'
 
+import {
+   openOrderPage,
+   getInputIco,
+   setIcoAndWait,
+   setSubstituteName,
+   setContactName,
+   setContactPhone,
+   setContactMail,
+   setFirstDate,
+   getPrimestskyTabor,
+   chooceOdpoledni,
+   getPocetDeti,
+   getVeVeku,
+   getAdults,
+   getBottonOrder,
+   getTitleOfPage,
+} from '../pages/functions.js'
+
+
+const SHORT_WAIT = 3000;
+const LONG_WAIT = 5000;
+
 describe('Objednávka pro MŠ_ZŠ', () => {
+
+
+   beforeEach( () => {
+      browser.reloadSession();
+      openOrderPage();
+   })
+   
+
 
     it('Should open order page', () => {
 
-        browser.reloadSession();
-        browser.url('');
-        browser.pause(2000);
-        let forTeacherElement = $$('.nav-item.dropdown')[1];
-         forTeacherElement.click();
+         let forTeacherElement = $$('.nav-item.dropdown')[1];
          const orderForSchools = forTeacherElement.$$(".dropdown-item")[1];
          expect(orderForSchools).isExisting;
          expect(orderForSchools).isDisplayed;
-         expect(orderForSchools).isClickable;
-         orderForSchools.click();
-         browser.pause(3000);
-         const inputIco = $('#ico');
-         expect(inputIco).isExisting;
-         expect(inputIco).isDisplayed;
-         const titleOfPage = $('.card').$('.card-body').$('h3').getText();  
-         console.log('TITULNI STRANKA JE: ' + titleOfPage);
-         expect('Objednávka akce').toEqual(titleOfPage);
+         expect(orderForSchools).isClickable;  
+         expect(getTitleOfPage()).toEqual('Objednávka akce');
     
      });
  
      it('Filling name and address from Ares', () =>{
-        browser.reloadSession();
-         browser.url('/objednavka/pridat');
          
-         const inputIco = $('#ico');
-         inputIco.setValue(ICO);
-         browser.keys('Enter');
-         browser.pause(4000);
- 
+         setIcoAndWait(ICO);
+
+         browser.pause(SHORT_WAIT);
+      
          //asertace Aresu
          const value = browser.execute((id) =>{
              return document.getElementById(id).value;
@@ -50,105 +66,56 @@ describe('Objednávka pro MŠ_ZŠ', () => {
           const valueOfAdress = browser.execute((id) =>{
              return document.getElementById(id).value;
           }, 'address');
-          console.log('HODNOTA JE: ' + value);
-          console.log('ADRESA JE: ' + valueOfAdress);
-          //browser.pause(3000);
-
+          
           expect(clientName).toEqual(value);
           expect(address).toEqual(valueOfAdress); 
      })
 
      it('Fill the order Primestsky tabor', () => {
  
-         browser.reloadSession();
-         browser.url('/objednavka/pridat');
+         setIcoAndWait(ICO);
          
-         const inputIco = $('#ico');
-         inputIco.setValue(ICO);
-         browser.keys('Enter');
-         browser.pause(4000);
-         const inputZastoupenaOsobou = $('#substitute');
-         inputZastoupenaOsobou.setValue(substituteName);
-         const inputContantName = $('#contact_name');
-         inputContantName.setValue(contactName);
-         const inputContactTel = $('#contact_tel');
-         inputContactTel.setValue(contactPhone);
-         const inputContactMail = $('#contact_mail');
-         inputContactMail.setValue(contactEmail);
- 
-        // VYPLNIT POZADOVANY TERMIN
-        $('#start_date_1').setValue(startDate);
-        $('#end_date_1').setValue(endDate);
-        browser.pause(5000);
- 
-        
-        const bottonPrimestskyTabor = $('#nav-home-tab');
-        bottonPrimestskyTabor.click();
-        $('#camp-date_part').selectByVisibleText('Odpolední');
- 
-        const inputPocetDeti = $('#camp-students');
-        inputPocetDeti.setValue('17');
-        const inputVeVeku = $('#camp-age');
-        const inputAdults = $('#camp-adults');
-        inputVeVeku.setValue('6 - 9');
-        inputAdults.setValue('2');
-        browser.pause(3000);
-     
-      //klikni na objednani
-       $('.btn.btn-primary').click();
-        browser.pause(5000);
-        
-        const titleOfPage = $('.card').$('.card-body').$('h3').getText();
-        expect(titleOfPage).isExisting;
-        expect(inputIco).isNotExisting;
-        expect($('.card').$('.card-body').$('p')).isExisting;
-        console.log(titleOfPage);
+         setSubstituteName(substituteName);
+         setContactName(contactName);
+         setContactPhone(contactPhone);
+         setContactMail(contactEmail);
+         setFirstDate(startDate, endDate);
+         
+         browser.pause(SHORT_WAIT);
+         
+         getPrimestskyTabor().click();
+         chooceOdpoledni();
+         getPocetDeti().setValue('17');
+         getVeVeku().setValue('6 - 9');
+         getAdults().setValue('2');  
+         getBottonOrder().click();
+         
+         browser.pause(LONG_WAIT);
 
-        //asertace, ze jde objednavka odeslat
-        expect('Děkujeme za objednávku').toEqual(titleOfPage); 
+        //asertace
+         expect(getInputIco()).isNotExisting;
+         expect($('.card').$('.card-body').$('p')).isExisting;
+         expect(getTitleOfPage()).toEqual('Děkujeme za objednávku');
      });
 
+
      it('Do not sent order withou fillig inputs', () => {
- 
-        browser.reloadSession();
-        browser.url('/objednavka/pridat');
-        
-        const inputIco = $('#ico');
-        inputIco.setValue(ICO);
-        browser.keys('Enter');
-        browser.pause(4000);
-        const inputZastoupenaOsobou = $('#substitute');
-        inputZastoupenaOsobou.setValue(substituteName);
-        const inputContantName = $('#contact_name');
-        inputContantName.setValue(contactName);
-        const inputContactTel = $('#contact_tel');
-        inputContactTel.setValue(contactPhone);
-        const inputContactMail = $('#contact_mail');
-        inputContactMail.setValue(contactEmail);
 
-       // VYPLNIT POZADOVANY TERMIN
-       $('#start_date_1').setValue(startDate);
-       $('#end_date_1').setValue(endDate);
-       browser.pause(5000);
-
-       
-       const bottonPrimestskyTabor = $('#nav-home-tab');
-       bottonPrimestskyTabor.click();
-       $('#camp-date_part').selectByVisibleText('Odpolední');
-
-       const inputPocetDeti = $('#camp-students');
-       inputPocetDeti.setValue('17');
-       browser.pause(3000);
-    
-     //klikni na objednani
-      $('.btn.btn-primary').click();
-       browser.pause(5000);
+         setIcoAndWait(ICO);
+         setSubstituteName(substituteName);
+         setContactName(contactName);
+         setContactPhone(contactPhone);
+         setContactMail(contactEmail);
+         setFirstDate(startDate, endDate);
+         browser.pause(SHORT_WAIT);
+         getPrimestskyTabor().click();
+         chooceOdpoledni();
+         getPocetDeti().setValue('17');
+         getBottonOrder().click();
+         browser.pause(LONG_WAIT);
      
-    //asertace, ze se neda objednavka odeslat
-       const titleOfPage = $('.card').$('.card-body').$('h3').getText();
-       console.log('TITUL STRANKY: ' + titleOfPage);
-       expect('Objednávka akce').toEqual(titleOfPage);   
-       expect(inputIco).isExisting;
+         //asertace, ze se neda objednavka odeslat 
+         expect(getTitleOfPage()).toEqual('Objednávka akce');
+         expect(getInputIco()).isExisting;
      });  
-
 });
