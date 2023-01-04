@@ -25,7 +25,7 @@
         "wdio-geckodriver-service": "^3.0.5",
         "wdio-html-nice-reporter": "^8.0.5",
         "wdio-video-reporter": "^3.2.3",
-        "wdio-vscode-service": "^4.0.7"
+        "wdio-vscode-service": "^5.0.0"
     },
     "scripts": {
         "wdio": "wdio run ./wdio.conf.js"
